@@ -1,0 +1,94 @@
+---
+- name: Print debug message 
+  debug:
+    msg: "Installing VMware Tools on {{ ansible_hostname }}"
+  when: is_vmware.stdout != "0"
+
+- name: Get the VMWare tools ISO
+  get_url: 
+    dest: "{{ iso_temp_path }}"
+    url: "{{ tools_iso_url }}"
+    validate_certs: no
+
+- name: Ensure the mount diretory exists
+  file:
+    path: "{{ mount_path }}"
+    state: directory
+
+- name: Mount the ISO
+  mount:
+    src: "{{ iso_temp_path }}"
+    path: "{{ mount_path }}"
+    state: present
+    fstype: iso9660
+    opts: ro
+  register: mnt_result
+
+- name: Reload /etc/fstab
+  command: "mount -a"
+  args:
+    warn: false
+  when: mnt_result.changed
+
+- name: Find the file to unmount
+  find:
+    recurse: no
+    paths: "{{ mount_path }}"
+    contains: ".gz"
+  register: iso_archives
+
+- name: Create the destination folder
+  file:
+    path: "{{ extract_tar_path }}"
+    state: directory
+
+- name: Extract the archive
+  unarchive:
+    src: "{{ iso_archives.files[0].path }}"
+    dest: "{{ extract_tar_path }}"
+    remote_src: yes
+
+- name: Ensure pip is installed
+  package:
+    name: python-pip
+    state: present
+    force_apt_get: yes 
+
+- name: Ensure pexpect and setuptools are installed
+  pip:
+    name: 
+    - setuptools
+    - pexpect
+    state: present
+
+- name: Run the installer
+  expect:
+    command: "{{ extract_tar_path }}/vmware-tools-distrib/vmware-install.pl"
+    responses:
+      \[no\]: "yes"
+      caf: "no"
+      files: ""
+      directory: ""
+      path: "yes"
+      vmware-config-tools: "yes"
+
+- name: Unmount the ISO
+  mount:
+    src: "{{ iso_temp_path }}"
+    path: "{{ mount_path }}"
+    state: absent
+  register: unmnt_result
+
+- name: Reload /etc/fstab
+  command: "mount -a"
+  args:
+    warn: false
+  when: unmnt_result.changed
+
+- name: Clean up directories
+  file:
+    name:
+      - "{{ extract_tar_path }}"
+      - "{{ iso_temp_path }}"
+    state: absent 
+...

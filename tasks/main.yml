@@ -1,0 +1,17 @@
+---
+- name: Determine if OS is virtual 
+  shell: dmidecode | grep -i vmware --count || true
+  become: true
+  register: is_vmware
+
+- name: Determine if VMWare tools is already installed
+  stat:
+    path: /usr/bin/vmware-toolbox-cmduser
+  register: is_installed
+  when: is_vmware.stdout != "0"
+
+- name: Import the tasks
+  import_tasks: install.yml
+  when: is_installed.stat.exists == false
+  become: yes
+...

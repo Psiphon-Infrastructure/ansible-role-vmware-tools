@@ -1,0 +1,10 @@
+---
+# Where to get the tools ISO from
+tools_iso_url: url_here
+
+# Temp paths - where to download and mount the image and contents
+iso_temp_path: /tmp/vmtools_linux.iso
+mount_path: /mnt/vmware
+extract_tar_path: /tmp/vmtools_extract
+
+...
