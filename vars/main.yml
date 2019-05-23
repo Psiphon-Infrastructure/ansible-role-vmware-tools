@@ -1,6 +1,6 @@
 ---
-# Where to get the tools ISO from
-tools_iso_url: url_here
+# Where to get the tools ISO from - set through host variables or change locally
+tools_iso_url: "{{ url_here }}"
 
 # Temp paths - where to download and mount the image and contents
 iso_temp_path: /tmp/vmtools_linux.iso

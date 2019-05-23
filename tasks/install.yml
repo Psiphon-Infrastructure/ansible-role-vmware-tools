@@ -32,9 +32,11 @@
 
 - name: Find the file to unmount
   find:
-    recurse: no
+    recurse: yes
     paths: "{{ mount_path }}"
-    contains: ".gz"
+    patterns:
+    - '^.*\.tar\.gz$' 
+    use_regex: yes
   register: iso_archives
 
 - name: Create the destination folder
