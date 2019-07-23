@@ -1,9 +1,4 @@
 ---
-- name: Print debug message 
-  debug:
-    msg: "Installing VMware Tools on {{ ansible_hostname }}"
-  when: is_vmware.stdout != "0"
-
 - name: Get the VMWare tools ISO
   get_url: 
     dest: "{{ iso_temp_path }}"
@@ -73,6 +68,8 @@
       directory: ""
       path: "yes"
       vmware-config-tools: "yes"
+      \[yes\]: "yes"
+
 
 - name: Unmount the ISO
   mount:
