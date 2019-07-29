@@ -6,7 +6,7 @@
 
 - name: Determine if VMWare tools is already installed
   stat:
-    path: /usr/bin/vmware-toolbox-cmduser
+    path: /usr/bin/vmware-uninstall-tools.pl
   register: is_installed
   when: is_vmware.stdout != "0"
 
